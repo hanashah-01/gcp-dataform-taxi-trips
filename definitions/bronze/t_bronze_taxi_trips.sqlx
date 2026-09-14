@@ -1,0 +1,37 @@
+-- This is an example SQLX file to help you learn the basics of Dataform.
+-- Visit https://cloud.google.com/dataform/docs/sql-workflows for more information on how to configure your SQL workflow.
+
+-- You can delete this file, then commit and push your changes to your repository when you are ready.
+
+-- Config blocks allow you to configure, document, and test your data assets.
+config {
+  type: "table",
+  schema: "sc_bronze",
+  description: "Raw data from source as it is"
+}
+
+SELECT
+  unique_key,
+  taxi_id,
+  trip_start_timestamp,
+  trip_end_timestamp,
+  trip_seconds,
+  trip_miles,
+  pickup_census_tract,
+  dropoff_census_tract,
+  pickup_community_area,
+  dropoff_community_area,
+  fare,
+  tips,
+  tolls,
+  extras,
+  trip_total,
+  payment_type,
+  company,
+  pickup_latitude,
+  pickup_longitude,
+  pickup_location,
+  dropoff_latitude,
+  dropoff_longitude,
+  dropoff_location
+FROM ${ref("taxi_trips")}
