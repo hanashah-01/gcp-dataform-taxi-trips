@@ -7,6 +7,7 @@
 config {
   type: "table",
   schema: "sc_bronze",
+  name: "t_taxi_trips",
   description: "Raw data from source as it is"
 }
 
@@ -33,5 +34,6 @@ SELECT
   pickup_location,
   dropoff_latitude,
   dropoff_longitude,
-  dropoff_location
+  dropoff_location,
+  CURRENT_TIMESTAMP() AS _bronze_load_dttm_utc
 FROM ${ref("taxi_trips")}

@@ -1,6 +1,7 @@
 config {
   type: "table",
   schema: "sc_silver",
+  name: "t_taxi_trips",
   description: "Applied transformation and data cleaning to the bronze table"
 }
 
@@ -11,12 +12,12 @@ WITH deduped AS (
       PARTITION BY unique_key
       ORDER BY trip_start_timestamp, trip_seconds DESC
     ) AS rn
-  FROM ${ref("t_bronze_taxi_trips")}
+  FROM ${ref("sc_bronze", "t_taxi_trips")}
 )
 
 SELECT
-  unique_key AS trip_id,
-  taxi_id,
+  TRIM(unique_key) AS trip_id,
+  TRIM(taxi_id) AS taxi_id,
   DATE(trip_start_timestamp) AS trip_date,
   trip_start_timestamp,
   trip_end_timestamp,
@@ -26,20 +27,20 @@ SELECT
   ROUND(trip_miles * 1609.344, 2) AS trip_meters,
   pickup_census_tract,
   dropoff_census_tract,
-  pickup_community_area,
-  dropoff_community_area,
+  pickup_community_area AS pickup_community_area_id,
+  dropoff_community_area AS dropoff_community_area_id,
   fare AS trip_fare,
   tips AS trip_tips,
   tolls AS trip_tolls,
   extras AS trip_extras,
   trip_total,
-  payment_type,
-  company,
+  TRIM(payment_type) AS payment_type,
+  TRIM(company) AS company,
   pickup_latitude,
   pickup_longitude,
-  pickup_location,
   dropoff_latitude,
   dropoff_longitude,
+  CURRENT_TIMESTAMP() AS _silver_load_dttm_utc
 
 FROM deduped
 WHERE rn = 1

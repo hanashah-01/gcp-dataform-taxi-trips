@@ -1,0 +1,32 @@
+config {
+  type: "table",
+  schema: "sc_gold",
+  name: "t_dim_date",
+  description: "Dimension table for date"
+}
+
+WITH trip_date AS (
+  SELECT
+    MIN(trip_date) AS min_date,
+    MAX(trip_date) AS max_date
+  FROM ${ref("sc_silver", "t_taxi_trips")}
+),
+
+date_range AS (
+  SELECT calendar_date
+  FROM trip_date,
+  UNNEST(
+    GENERATE_DATE_ARRAY(min_date, max_date, INTERVAL 1 DAY)
+  ) AS calendar_date
+)
+
+SELECT
+  CAST(FORMAT_DATE('%Y%m%d', calendar_date) AS INT64) AS date_id,
+  calendar_date AS date,
+  FORMAT_DATE('%B', calendar_date) AS month_name,
+  FORMAT_DATE('%b', calendar_date) AS month_name_abbr,
+  FORMAT_DATE('%m', calendar_date) AS month,
+  EXTRACT(YEAR FROM calendar_date) AS year,
+  FORMAT_DATE('%B %Y', calendar_date) AS month_year,
+  FORMAT_DATE('%b %Y', calendar_date) AS month_year_abbr
+FROM date_range

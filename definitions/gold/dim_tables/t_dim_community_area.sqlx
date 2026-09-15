@@ -1,0 +1,13 @@
+config {
+  type: "table",
+  schema: "sc_gold",
+  name: "t_dim_community_area",
+  description: "Dimension table for community areas"
+}
+
+SELECT
+  community_area_id,
+  community_name,
+  CURRENT_TIMESTAMP() AS _gold_load_dttm_utc
+FROM ${ref("sc_silver", "t_community_area")}
+ORDER BY community_area_id

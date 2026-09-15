@@ -1,0 +1,13 @@
+config {
+  type: "table",
+  schema: "sc_silver",
+  name: "t_community_area",
+  description: "Applied transformation and data cleaning to the bronze table"
+}
+
+SELECT
+  CAST(dropoff_community_area AS INT) AS community_area_id,
+  TRIM(community_name) AS community_name,
+  CURRENT_TIMESTAMP() AS _silver_load_dttm_utc
+FROM ${ref("sc_bronze", "t_community_area")}
+

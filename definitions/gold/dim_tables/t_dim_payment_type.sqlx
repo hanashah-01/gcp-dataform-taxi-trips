@@ -1,0 +1,15 @@
+config {
+  type: "table",
+  schema: "sc_gold",
+  name: "t_dim_payment_type",
+  description: "Dimension table for payment types"
+}
+
+SELECT
+  CASE WHEN payment_type IS NULL OR TRIM(payment_type) = '' THEN -1
+    ELSE ROW_NUMBER() OVER (ORDER BY payment_type)
+  END AS payment_type_id,
+  COALESCE(payment_type, '') AS payment_type,
+  CURRENT_TIMESTAMP() AS _gold_load_dttm_utc
+FROM (SELECT DISTINCT payment_type FROM ${ref("sc_silver", "t_taxi_trips")})
+ORDER BY payment_type_id

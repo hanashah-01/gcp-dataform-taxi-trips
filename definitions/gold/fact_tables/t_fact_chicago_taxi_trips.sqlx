@@ -1,0 +1,41 @@
+config {
+  type: "table",
+  schema: "sc_gold",
+  name: "t_fact_chicago_taxi_trips",
+  description: "Information regarding taxi trips in Chicago"
+}
+
+SELECT
+  tx.trip_id,
+  tx.taxi_id,
+  dt.date_id as trip_date_id,
+  tx.trip_start_timestamp,
+  tx.trip_end_timestamp,
+  tx.trip_seconds,
+  tx.trip_minutes,
+  tx.trip_meters,
+  tx.pickup_census_tract,
+  tx.dropoff_census_tract,
+  tx.pickup_community_area_id,
+  tx.dropoff_community_area_id,
+  tx.trip_fare,
+  tx.trip_tips,
+  tx.trip_tolls,
+  tx.trip_extras,
+  tx.trip_total,
+  pt.payment_type_id,
+  cm.company_id,
+  tx.pickup_latitude,
+  tx.pickup_longitude,
+  tx.dropoff_latitude,
+  tx.dropoff_longitude,
+  CURRENT_TIMESTAMP() AS _gold_load_dttm_utc
+
+FROM ${ref("sc_silver", "t_taxi_trips")} tx 
+LEFT JOIN ${ref("sc_gold", "t_dim_date")} dt
+ON tx.trip_date = dt.date
+LEFT JOIN ${ref("sc_gold", "t_dim_company")} cm 
+ON tx.company = cm.company 
+LEFT JOIN ${ref("sc_gold", "t_dim_payment_type")} pt 
+ON tx.payment_type = pt.payment_type
+
