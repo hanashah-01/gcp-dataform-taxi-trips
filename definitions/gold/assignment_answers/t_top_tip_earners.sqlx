@@ -1,0 +1,41 @@
+config {
+  type: "table",
+  schema: "sc_gold",
+  name: "t_top_tip_earners",
+  description: "The top 100 “tip earners”, the taxi IDs that earn more money than others for the last 3 months"
+}
+
+WITH recent_trips AS (
+  SELECT
+    tx.taxi_id,
+    tx.trip_tips
+  FROM ${ref("t_fact_chicago_taxi_trips")} AS tx
+  LEFT JOIN ${ref("t_dim_date")} AS dt
+    ON tx.trip_date_id = dt.date_id
+  WHERE dt.date >= DATE_SUB(
+    (SELECT MAX(dt.date)
+     FROM ${ref("t_fact_chicago_taxi_trips")} AS tx
+     LEFT JOIN ${ref("t_dim_date")} AS dt
+       ON tx.trip_date_id = dt.date_id),
+    INTERVAL 3 MONTH
+  )
+),
+
+tip_totals AS (
+  SELECT
+    taxi_id,
+    SUM(trip_tips) AS total_tips,
+    COUNT(*) AS trip_count,
+    ROUND(SUM(trip_tips) / COUNT(*), 2) AS avg_tip_per_trip
+  FROM recent_trips
+  GROUP BY taxi_id
+)
+
+SELECT
+  taxi_id,
+  total_tips,
+  trip_count,
+  avg_tip_per_trip
+FROM tip_totals
+ORDER BY total_tips DESC
+LIMIT 100

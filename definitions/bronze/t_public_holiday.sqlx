@@ -1,0 +1,18 @@
+config {
+  type: "table",
+  schema: "sc_bronze",
+  name: "t_public_holiday",
+  description: "Raw data from source as it is"
+}
+
+SELECT
+  Title,
+  Occurence,
+  `Date`,
+  `Pay and Leave Holiday Date _if SAT_ then FRI if SUN  then MON_`,
+  Month,
+  Day,
+  Year,
+  Weekday,
+  CURRENT_TIMESTAMP() AS _bronze_load_dttm_utc
+FROM ${ref("us_public_holidays_2004_2100")}

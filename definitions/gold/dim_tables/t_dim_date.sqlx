@@ -28,5 +28,12 @@ SELECT
   FORMAT_DATE('%m', calendar_date) AS month,
   EXTRACT(YEAR FROM calendar_date) AS year,
   FORMAT_DATE('%B %Y', calendar_date) AS month_year,
-  FORMAT_DATE('%b %Y', calendar_date) AS month_year_abbr
-FROM date_range
+  FORMAT_DATE('%b %Y', calendar_date) AS month_year_abbr,
+  CASE 
+    WHEN ph.Title IS NULL THEN FALSE
+    ELSE TRUE 
+  END AS is_public_holiday,
+  ph.Title
+FROM date_range dr
+LEFT JOIN ${ref("sc_silver", "t_public_holiday")} ph 
+ON dr.calendar_date = ph.Date 
