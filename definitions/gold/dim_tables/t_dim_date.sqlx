@@ -33,7 +33,7 @@ SELECT
     WHEN ph.Title IS NULL THEN FALSE
     ELSE TRUE 
   END AS is_public_holiday,
-  ph.Title
+  ph.Title as public_holiday_name
 FROM date_range dr
 LEFT JOIN ${ref("sc_silver", "t_public_holiday")} ph 
 ON dr.calendar_date = ph.Date 

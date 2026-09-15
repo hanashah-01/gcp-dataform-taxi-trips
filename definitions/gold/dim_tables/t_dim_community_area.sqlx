@@ -10,4 +10,12 @@ SELECT
   community_name,
   CURRENT_TIMESTAMP() AS _gold_load_dttm_utc
 FROM ${ref("sc_silver", "t_community_area")}
+
+UNION ALL
+
+SELECT
+  -1 AS community_area_id,
+  CAST(NULL AS STRING) AS community_name,
+  CURRENT_TIMESTAMP() AS _gold_load_dttm_utc
+
 ORDER BY community_area_id

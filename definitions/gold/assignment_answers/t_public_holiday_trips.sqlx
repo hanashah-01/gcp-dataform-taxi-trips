@@ -1,0 +1,17 @@
+config {
+  type: "table",
+  schema: "sc_gold",
+  name: "t_public_holiday_trips",
+  description: "Impact of public holidays on the increase/decrease in trips"
+}
+
+SELECT
+    tx.trip_date_id,
+    dt.year,
+    dt.is_public_holiday,
+    dt.public_holiday_name,
+    count(tx.trip_id) as count_of_trips,
+FROM ${ref("t_fact_chicago_taxi_trips")} tx 
+LEFT JOIN ${ref("t_dim_date")} AS dt 
+ON tx.trip_date_id = dt.date_id 
+GROUP BY ALL
