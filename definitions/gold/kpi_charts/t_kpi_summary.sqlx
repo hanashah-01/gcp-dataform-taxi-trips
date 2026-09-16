@@ -1,0 +1,23 @@
+config {
+  type: "table",
+  schema: "sc_gold",
+  name: "t_kpi_summary",
+  description: "KPI base table for dashboard scorecards"
+}
+
+SELECT
+  tx.trip_id,
+  tx.taxi_id,
+  dt.date,
+  dt.month_year,
+  cm.company,
+  tx.trip_minutes,
+  tx.trip_meters,
+  tx.trip_fare,
+  tx.trip_total,
+  tx.trip_tips
+FROM ${ref("t_fact_chicago_taxi_trips")} AS tx 
+LEFT JOIN ${ref("t_dim_date")} AS dt
+  ON tx.trip_date_id = dt.date_id
+LEFT JOIN ${ref("t_dim_company")} AS cm
+  ON tx.company_id = cm.company_id

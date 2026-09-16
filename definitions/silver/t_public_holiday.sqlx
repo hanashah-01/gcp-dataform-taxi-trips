@@ -1,0 +1,19 @@
+config {
+  type: "table",
+  schema: "sc_silver",
+  name: "t_public_holiday",
+  description: "Applied transformation and data cleaning to the bronze table"
+}
+
+SELECT
+  Title,
+  Occurence,
+  `Date`,
+  `Pay and Leave Holiday Date _if SAT_ then FRI if SUN  then MON_`,
+  Month,
+  Day,
+  Year,
+  Weekday,
+  CURRENT_TIMESTAMP() AS _silver_load_dttm_utc
+FROM ${ref("sc_bronze", "t_public_holiday")}
+WHERE TRIM(Title) != '' OR Title IS NOT NULL

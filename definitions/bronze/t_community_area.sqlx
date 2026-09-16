@@ -1,0 +1,12 @@
+config {
+  type: "table",
+  schema: "sc_bronze",
+  name: "t_community_area",
+  description: "Raw data from source as it is"
+}
+
+SELECT
+  dropoff_community_area,
+  community_name,
+  CURRENT_TIMESTAMP() AS _bronze_load_dttm_utc
+FROM ${ref("chicago_community_area")}

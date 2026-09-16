@@ -1,0 +1,79 @@
+config {
+  type: "table",
+  schema: "sc_gold",
+  name: "t_top_long_workers",
+  description: "Top 100 “overworkers”, taxi IDs that work more hours than others without taking at least 8 hours break and regularly have a long shift"
+}
+
+-- Max per shift is supposed to be 12 hours 
+-- Meaning they work continuously without taking at least 8 hours break between shifts
+-- Regularly – assume more than 5 times
+
+-- Get the sequence of trips per taxi
+WITH trip_sequence AS (
+  SELECT
+    taxi_id,
+    company_id,
+    trip_start_timestamp,
+    trip_end_timestamp,
+    LAG(trip_end_timestamp) OVER (
+      PARTITION BY taxi_id ORDER BY trip_start_timestamp -- For each trip, grab the end time of the previous trip
+    ) AS prev_trip_end
+  FROM ${ref("t_fact_chicago_taxi_trips")}
+  WHERE trip_end_timestamp >= trip_start_timestamp  
+),
+
+-- Calculate how long is the gap between the trips
+trip_gap AS (
+  SELECT
+    *,
+    TIMESTAMP_DIFF(trip_start_timestamp, prev_trip_end, MINUTE) / 60.0 AS gap_hours
+  FROM trip_sequence
+),
+
+-- If the gap is >= 8 hours, assume its a new shift
+shift_flag AS (
+  SELECT
+    *,
+    CASE
+      WHEN prev_trip_end IS NULL OR gap_hours >= 8 THEN 1
+      ELSE 0
+    END AS is_new_shift
+  FROM trip_gap
+),
+
+-- Assign each trip a shift number
+shift_ids AS (
+  SELECT
+    *,
+    SUM(is_new_shift) OVER (
+      PARTITION BY taxi_id ORDER BY trip_start_timestamp
+      ROWS UNBOUNDED PRECEDING
+    ) AS shift_id
+  FROM shift_flag
+),
+
+shifts AS (
+  SELECT
+    taxi_id,
+    shift_id,
+    MIN(trip_start_timestamp) AS shift_start,
+    MAX(trip_end_timestamp) AS shift_end,
+    TIMESTAMP_DIFF(MAX(trip_end_timestamp), MIN(trip_start_timestamp), MINUTE) / 60.0 AS shift_duration_hours,
+    COUNT(*) AS trips_in_shift
+  FROM shift_ids
+  GROUP BY taxi_id, shift_id
+)
+
+SELECT 
+  sh.taxi_id,
+  COUNT(sh.shift_id) AS total_shifts,
+  COUNTIF(sh.shift_duration_hours > 12) AS long_shift_count,
+  ROUND(AVG(sh.shift_duration_hours), 2) AS avg_shift_hours,
+  ROUND(MAX(sh.shift_duration_hours), 2) AS max_shift_hours
+FROM shifts sh 
+GROUP BY taxi_id
+HAVING COUNTIF(shift_duration_hours > 12) >= 5 -- Assume equal or more than 5 times is considered regularly
+ORDER BY long_shift_count DESC
+LIMIT 100
+
