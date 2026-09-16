@@ -1,0 +1,20 @@
+config {
+  type: "table",
+  schema: "sc_gold",
+  name: "t_top_payment_types",
+  description: "Top payment types used by passengers"
+}
+
+SELECT
+  pt.payment_type,
+  ca.community_name,
+  dt.date,
+  COUNT(tx.trip_id) AS total_trips,
+FROM ${ref("t_fact_chicago_taxi_trips")} tx 
+LEFT JOIN ${ref("t_dim_date")} AS dt 
+ON tx.trip_date_id = dt.date_id
+LEFT JOIN ${ref("t_dim_payment_type")} AS pt 
+ON tx.payment_type_id = pt.payment_type_id
+LEFT JOIN ${ref("t_dim_community_area")} AS ca 
+ON tx.pickup_community_area_id = ca.community_area_id
+GROUP BY payment_type, community_name, date

@@ -67,14 +67,11 @@ shifts AS (
 
 SELECT 
   sh.taxi_id,
-  -- dt.date_id as shift_date_id,
   COUNT(sh.shift_id) AS total_shifts,
   COUNTIF(sh.shift_duration_hours > 12) AS long_shift_count,
   ROUND(AVG(sh.shift_duration_hours), 2) AS avg_shift_hours,
   ROUND(MAX(sh.shift_duration_hours), 2) AS max_shift_hours
 FROM shifts sh 
--- LEFT JOIN ${ref("t_dim_date")} dt 
--- ON DATE(sh.shift_start) = dt.date 
 GROUP BY taxi_id
 HAVING COUNTIF(shift_duration_hours > 12) >= 5 -- Assume equal or more than 5 times is considered regularly
 ORDER BY long_shift_count DESC

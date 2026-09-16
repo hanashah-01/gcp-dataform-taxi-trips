@@ -6,9 +6,10 @@ config {
 }
 
 SELECT
-    tx.trip_date_id,
+    dt.date,
     dt.year,
-    dt.is_public_holiday,
+    CASE WHEN dt.is_public_holiday = TRUE THEN 'Public Holiday'
+    ELSE 'No Public Holiday' END AS is_public_holiday,
     dt.public_holiday_name,
     count(tx.trip_id) as count_of_trips,
 FROM ${ref("t_fact_chicago_taxi_trips")} tx 
