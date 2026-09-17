@@ -39,3 +39,4 @@ SELECT
 FROM tip_totals
 ORDER BY total_tips DESC
 LIMIT 100
+-- calc the tip to fare ratio to differentiate between taxis with same tip
