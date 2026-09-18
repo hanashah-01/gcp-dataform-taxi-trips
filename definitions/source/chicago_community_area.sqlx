@@ -1,6 +1,6 @@
 config {
   type: "declaration",
-  database: "time-dotcom-data-analytics",
+  database: "",
   schema: "sc_raw",
   name: "chicago_community_area"
 }
