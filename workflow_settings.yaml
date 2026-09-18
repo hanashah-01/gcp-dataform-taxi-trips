@@ -1,4 +1,4 @@
-defaultProject: time-dotcom-data-analytics
+defaultProject: hana_project
 defaultDataset: sc_raw
 defaultAssertionDataset: dataform_assertions
 dataformCoreVersion: 3.0.52
