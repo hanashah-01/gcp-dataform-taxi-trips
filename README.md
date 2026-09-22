@@ -136,3 +136,5 @@ This layer contains dashboard-ready KPI and chart datasets used for scorecards a
  **Definition used**: daily trip counts grouped by date, year, and public holiday status, with each trip tagged as either “Public Holiday” (including holiday name) or “No Public Holiday” based on the date dimension.
  
 ---
+
+Dashboard link: https://datastudio.google.com/s/rhgTD9_VVfA

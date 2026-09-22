@@ -16,4 +16,5 @@ ON tx.trip_date_id = dt.date_id
 LEFT JOIN ${ref("t_dim_community_area")} AS ca 
 ON tx.pickup_community_area_id = ca.community_area_id
 GROUP BY community_name, date, pickup_hour
-ORDER BY community_name, date, pickup_hour
+ORDER BY community_name, date, pickup_hour 
+-- get the avg. waiting time to gauge the demand so there will be no undersupply/oversupply
